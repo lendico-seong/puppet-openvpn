@@ -27,10 +27,10 @@ crl-verify <%= @extca_ca_crl_file %>
 ca <%= @etc_directory -%>/openvpn/<%= @ca_name %>/keys/ca.crt
 cert <%= @etc_directory -%>/openvpn/<%= @ca_name %>/keys/<%= @ca_common_name %>.crt
 key <%= @etc_directory -%>/openvpn/<%= @ca_name %>/keys/<%= @ca_common_name %>.key
-<% unless @remote -%>
+<%   unless @remote -%>
 dh <%= @etc_directory -%>/openvpn/<%= @ca_name %>/keys/dh<%= @ssl_key_size %>.pem
-<% end -%>
-<% unless @remote -%>
+<%   end -%>
+<%   unless @remote or !@crl_verify -%>
 crl-verify <%= @etc_directory -%>/openvpn/<%= @ca_name %>/crl.pem
 <%   end -%>
 <% end -%>
@@ -43,6 +43,9 @@ proto <%= @proto %>
 nobind
 <% else -%>
 port <%= @port %>
+<% if @portshare -%>
+port-share <%= @portshare %>
+<% end -%>
 <% end -%>
 <% if @real_tls_server -%>
 tls-server
@@ -170,8 +173,11 @@ key-direction 1
 <% if @fragment != false -%>
 fragment <%= @fragment %>
 <% end -%>
+<% if @secret -%>
+secret <%= @etc_directory -%>/openvpn/<%= @name %>/keys/pre-shared.secret
+<% end -%>
 
-#Additional custom options
+# Additional custom options
 <% @custom_options.each_pair do |key, value| -%>
 <%= key %> <%= value %>
 <% end -%>
